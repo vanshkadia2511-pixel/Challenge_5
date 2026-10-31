@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 160" fill="none" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="tealWave" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1F7A74" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#114B47" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="saffronWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E8A33D" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#FCD34D" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="roseWave" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C4476A" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#BE185D" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#FB7185" stop-opacity="0.75"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Flowing teal ribbon wave -->
+  <path d="M 0 60 C 250 140, 450 -20, 700 80 C 950 160, 1100 20, 1200 70 L 1200 95 C 1080 40, 920 180, 680 100 C 420 10, 220 160, 0 85 Z" fill="url(#tealWave)"/>
+
+  <!-- Flowing saffron ribbon wave -->
+  <path d="M 0 40 C 220 120, 480 -30, 720 70 C 960 150, 1080 30, 1200 50 L 1200 68 C 1070 48, 940 165, 700 85 C 460 -10, 200 135, 0 58 Z" fill="url(#saffronWave)"/>
+
+  <!-- Flowing coral-rose accent ribbon -->
+  <path d="M 0 75 C 240 155, 460 5, 710 95 C 950 175, 1090 35, 1200 85 L 1200 98 C 1080 50, 930 185, 690 110 C 440 25, 230 170, 0 90 Z" fill="url(#roseWave)"/>
+</svg>
