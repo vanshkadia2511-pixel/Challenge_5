@@ -1,0 +1,13 @@
+00:00 - Introduction & The Moments-First Philosophy
+00:12 - Curated Occasion Presets (Weddings, Birthdays, Community)
+00:20 - AI Celebration Planner & Donut Budget Split
+00:36 - Celebration Studio Dashboard, KPIs & Tasks Checklist
+00:58 - The Moment Deck & 5-Question Story Interview
+01:24 - Human-in-the-Loop Review Cards (Apply/Edit/Dismiss)
+01:36 - Budget Overview, Monthly Spend & Integer-Paise Allocation
+01:58 - Trade-Off Simulator: Cutting & Redistribution
+02:16 - Backwards Milestone Timeline & The Energy Curve
+02:34 - Find Vendors Directory & Add to Event Cue Sheets
+02:48 - The Moment Book & Printable Vendor Cue Sheets
+02:56 - Safe CSV/JSON Exports & After-Event Reality Scorecard
+03:10 - Under-the-Hood Engineering Proof (115 Tests, a11y AA, Clean Build)

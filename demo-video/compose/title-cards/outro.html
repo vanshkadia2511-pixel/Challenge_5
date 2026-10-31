@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px;
+      height: 1080px;
+      background: #111827;
+      color: #F9FAFB;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 100px;
+      position: relative;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #374151;
+      padding-bottom: 24px;
+      margin-bottom: 40px;
+    }
+    .brand {
+      font-size: 38px;
+      font-weight: 800;
+      color: #E5E7EB;
+      letter-spacing: -1px;
+    }
+    .brand span { color: #E8A33D; }
+    .tagline { font-size: 20px; color: #9CA3AF; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      width: 100%;
+    }
+    .box {
+      background: #1F2937;
+      border: 1px solid #374151;
+      border-radius: 16px;
+      padding: 32px;
+    }
+    .box h2 {
+      font-size: 24px;
+      color: #6EE7B7;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .terminal {
+      font-family: monospace;
+      font-size: 17px;
+      line-height: 1.6;
+      color: #D1D5DB;
+    }
+    .success { color: #34D399; font-weight: bold; }
+    .muted { color: #9CA3AF; }
+    .checklist {
+      list-style: none;
+      font-size: 19px;
+      line-height: 2.1;
+      color: #E5E7EB;
+    }
+    .check { color: #34D399; margin-right: 12px; font-weight: bold; }
+    .footer-note {
+      margin-top: 36px;
+      text-align: center;
+      font-size: 22px;
+      color: #9CA3AF;
+    }
+    .footer-note strong { color: #F3F4F6; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="brand">KSHAN <span>·</span> Engineering Quality Proof</div>
+    <div class="tagline">PromptWars Virtual Challenge 5: Celebration & Event Planner</div>
+  </div>
+
+  <div class="grid">
+    <!-- Box 1: Terminal Proof -->
+    <div class="box">
+      <h2><span style="color:#60A5FA;">⚡</span> Verified Test & Quality Suite</h2>
+      <div class="terminal">
+        <div><span class="muted">$</span> npm test -- --run</div>
+        <div class="success">✓ 16 test files passed (16)</div>
+        <div class="success">✓ 115 tests passed (115) · 0 failed</div>
+        <div style="margin: 8px 0; border-top: 1px dashed #4B5563;"></div>
+        <div><span class="muted">$</span> tsc --noEmit && eslint src api</div>
+        <div class="success">✓ TypeScript strict: 0 errors</div>
+        <div class="success">✓ ESLint: 0 errors · 0 warnings</div>
+        <div style="margin: 8px 0; border-top: 1px dashed #4B5563;"></div>
+        <div><span class="muted">$</span> npx playwright test (axe-core)</div>
+        <div class="success">✓ WCAG 2.1 Level AA: 0 violations</div>
+        <div class="success">✓ 1920x1080 & 320px responsive tests passed</div>
+      </div>
+    </div>
+
+    <!-- Box 2: Challenge 5 Requirements Check -->
+    <div class="box">
+      <h2><span style="color:#FBBF24;">🏆</span> Challenge Requirements Satisfied</h2>
+      <ul class="checklist">
+        <li><span class="check">✓</span> <strong>Budgets:</strong> Integer-paise largest-remainder engine + 10% contingency</li>
+        <li><span class="check">✓</span> <strong>Timelines:</strong> Backwards DAG scheduler + automatic lead compression</li>
+        <li><span class="check">✓</span> <strong>Vendor Checklists:</strong> 1-page printable cue sheets with cue triggers</li>
+        <li><span class="check">✓</span> <strong>Personalised Ideas:</strong> 5-question host interview + 3-tier proposals</li>
+        <li><span class="check">✓</span> <strong>GenAI Assistant:</strong> Review Card pattern (Apply / Edit / Dismiss)</li>
+        <li><span class="check">✓</span> <strong>Event Types:</strong> Tailored presets for Weddings, Birthdays & Community</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <strong>KSHAN:</strong> Budget the moments, not the vendors. · <span style="color:#E8A33D;">https://github.com/vanshkadia2511-pixel/Challenge_5</span>
+  </div>
+</body>
+</html>
