@@ -1,0 +1,13 @@
+00:00.00  Opening
+00:05.40  Occasion templates
+00:13.70  AI planner
+00:18.70  Moment Deck
+00:28.60  Dashboard & tasks
+00:40.80  Moment Budget
+00:47.40  Trade-Off Simulator
+00:54.30  Energy Curve
+01:01.60  Vendor directory
+01:08.20  Moment Book
+01:13.80  After-Event Log
+01:19.70  Engineering quality proof
+01:25.93  GitHub & closing

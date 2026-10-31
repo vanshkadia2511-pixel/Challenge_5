@@ -1,0 +1,52 @@
+1
+00:00:00,350 --> 00:00:04,900
+KSHAN — Budget the moments, not the vendors.
+
+2
+00:00:05,600 --> 00:00:08,100
+Choose your celebration: weddings, birthdays and community events.
+
+3
+00:00:13,900 --> 00:00:16,300
+Your AI planning companion. Suggestions stay under your control.
+
+4
+00:00:18,900 --> 00:00:21,300
+Build the moments that matter. Sequence, rank and protect them.
+
+5
+00:00:28,800 --> 00:00:31,300
+See the whole plan at a glance: tasks, countdown and progress.
+
+6
+00:00:41,000 --> 00:00:43,500
+Budget by moment, with allocations and a protected reserve.
+
+7
+00:00:47,600 --> 00:00:50,100
+Preview trade-offs before making a change.
+
+8
+00:00:54,500 --> 00:00:57,000
+Shape the day’s energy and pacing.
+
+9
+00:01:01,800 --> 00:01:04,300
+Coordinate vendors and their event-day cues.
+
+10
+00:01:08,400 --> 00:01:10,900
+The Moment Book brings the plan together.
+
+11
+00:01:14,000 --> 00:01:16,500
+Reflect on actual spend and the moments worth keeping.
+
+12
+00:01:19,900 --> 00:01:23,400
+Engineering proof: tests, accessibility and challenge coverage.
+
+13
+00:01:26,533 --> 00:01:31,133
+Explore KSHAN on GitHub.
+
