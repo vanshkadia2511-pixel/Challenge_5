@@ -41,8 +41,34 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+/** Ensure status, json, and send helpers exist on raw ServerResponse */
+export function ensureResponseHelpers(res: ServerResponse): VercelResponse {
+  const extended = res as VercelResponse;
+  if (typeof extended.status !== 'function') {
+    extended.status = function (statusCode: number) {
+      extended.statusCode = statusCode;
+      return extended;
+    };
+  }
+  if (typeof extended.json !== 'function') {
+    extended.json = function (data: unknown) {
+      if (!extended.getHeader('Content-Type')) {
+        extended.setHeader('Content-Type', 'application/json; charset=utf-8');
+      }
+      extended.end(JSON.stringify(data));
+    };
+  }
+  if (typeof extended.send !== 'function') {
+    extended.send = function (data: string) {
+      extended.end(data);
+    };
+  }
+  return extended;
+}
+
 /** Set required security headers on serverless response */
 export function applySecurityHeaders(res: VercelResponse, origin = '*'): void {
+  ensureResponseHelpers(res);
   const allowedOrigin = process.env.ALLOWED_ORIGIN || origin;
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
