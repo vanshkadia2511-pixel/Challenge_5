@@ -30,6 +30,7 @@ export function PlanWorkspacePage() {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [newExpenseLabel, setNewExpenseLabel] = useState('');
   const [newExpenseAmount, setNewExpenseAmount] = useState('');
+  const [newExpenseMomentId, setNewExpenseMomentId] = useState('');
 
   // 1. Moment Budget allocation
   const allocation = useMemo(() => {
@@ -97,16 +98,17 @@ export function PlanWorkspacePage() {
         costLine: {
           id: `manual-cost-${String(Date.now())}`,
           label: newExpenseLabel.trim(),
-          kind: 'direct',
+          kind: newExpenseMomentId ? 'direct' : 'shared',
           amountMinor: Math.round(amountNum * 100),
           locked: false,
           status: 'estimate',
-          momentIds: moments.slice(0, 1).map((m) => m.id),
+          momentIds: newExpenseMomentId ? [newExpenseMomentId] : [],
           usageWeights: {},
         },
       });
       setNewExpenseLabel('');
       setNewExpenseAmount('');
+      setNewExpenseMomentId('');
       setShowAddExpenseModal(false);
     }
   };
@@ -886,6 +888,19 @@ export function PlanWorkspacePage() {
                   min="1"
                   className="w-full px-3 py-2 border border-mist rounded-lg text-sm text-ink focus:ring-2 focus:ring-saffron focus:outline-none"
                 />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-ink block mb-1">Assign to Moment <span className="text-ink/50 font-normal">(optional)</span></label>
+                <select
+                  value={newExpenseMomentId}
+                  onChange={(e) => { setNewExpenseMomentId(e.target.value); }}
+                  className="w-full px-3 py-2 border border-mist rounded-lg text-sm text-ink focus:ring-2 focus:ring-saffron focus:outline-none"
+                >
+                  <option value="">General (shared across all moments)</option>
+                  {moments.map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button

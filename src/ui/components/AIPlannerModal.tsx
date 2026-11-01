@@ -6,6 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useAppContext } from '../../state/context';
 import { formatINR } from '../../engine/money';
+import { generateFallbackAssistant } from '../../ai/fallback';
+import type { AssistantResult } from '../../schemas/ai';
 
 interface AIPlannerModalProps {
   isOpen: boolean;
@@ -52,6 +54,7 @@ export function AIPlannerModal({ isOpen, onClose }: AIPlannerModalProps) {
     },
   ]);
   const [applied, setApplied] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -69,17 +72,39 @@ export function AIPlannerModal({ isOpen, onClose }: AIPlannerModalProps) {
   if (!isOpen) return null;
 
   const handleSend = () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isThinking) return;
     const userText = inputMessage.trim();
     setInputMessage('');
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', text: userText },
-      {
-        role: 'assistant',
-        text: `I've analyzed that request. For a signature ${event.type}, focusing resources on high-impact moments creates an unforgettable celebration. You can adjust moment importance in your Deck or explore curated vendor options.`,
-      },
-    ]);
+    setIsThinking(true);
+    setMessages((prev) => [...prev, { role: 'user', text: userText }]);
+
+    const planSummary = {
+      eventType: event.type,
+      momentCount: moments.length,
+      momentNames: moments.map((m) => m.name),
+      totalBudgetMinor: event.budgetMinor,
+      guests: event.guests,
+    };
+
+    fetch('/api/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: userText, planSummary }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${String(res.status)}`);
+        return res.json() as Promise<AssistantResult>;
+      })
+      .then((data) => {
+        setMessages((prev) => [...prev, { role: 'assistant', text: data.answer }]);
+      })
+      .catch(() => {
+        const fb = generateFallbackAssistant({ question: userText, planSummary });
+        setMessages((prev) => [...prev, { role: 'assistant', text: fb.answer }]);
+      })
+      .finally(() => {
+        setIsThinking(false);
+      });
   };
 
   const handleApplyToPlan = () => {
@@ -232,9 +257,10 @@ export function AIPlannerModal({ isOpen, onClose }: AIPlannerModalProps) {
             />
             <button
               type="submit"
-              className="px-4 py-2.5 rounded-xl bg-teal text-white text-sm font-semibold hover:bg-teal/90 transition-colors shadow-sm"
+              disabled={isThinking || !inputMessage.trim()}
+              className="px-4 py-2.5 rounded-xl bg-teal text-white text-sm font-semibold hover:bg-teal/90 transition-colors shadow-sm disabled:opacity-50"
             >
-              Send
+              {isThinking ? 'Thinking…' : 'Send'}
             </button>
           </form>
         </div>

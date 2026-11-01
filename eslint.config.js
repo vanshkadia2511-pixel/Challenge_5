@@ -5,7 +5,18 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results', 'node_modules'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      'node_modules',
+      '.trunk/**',
+      'demo-video/**',
+      'audit/**',
+    ],
+  },
 
   {
     extends: [js.configs.recommended, ...tseslint.configs.strictTypeChecked],

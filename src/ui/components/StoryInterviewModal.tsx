@@ -8,8 +8,8 @@
 
 import { useState } from 'react';
 import { useAppContext } from '../../state/context';
-import { runInterview } from '../../ai/client';
-import type { InterviewResultMoment } from '../../schemas/ai';
+import { generateFallbackInterview } from '../../ai/fallback';
+import type { InterviewResultMoment, InterviewResult } from '../../schemas/ai';
 
 interface StoryInterviewModalProps {
   isOpen: boolean;
@@ -48,15 +48,20 @@ export function StoryInterviewModal({
   const handleRunInterview = async () => {
     setLoading(true);
     try {
-      const res = await runInterview({
-        eventType: state.plan.event.type,
-        answers,
+      const response = await fetch('/api/interview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventType: state.plan.event.type, answers }),
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${String(response.status)}`);
+      }
+      const res = (await response.json()) as InterviewResult;
       onMomentsGenerated(res.moments, res.source);
       onClose();
     } catch {
-      // Fallback generator in offline/error cases
-      const fb = await runInterview({ eventType: state.plan.event.type, answers });
+      // Offline / server unavailable — use deterministic rule-based fallback
+      const fb = generateFallbackInterview({ eventType: state.plan.event.type, answers });
       onMomentsGenerated(fb.moments, 'fallback');
       onClose();
     } finally {
