@@ -1,26 +1,23 @@
 /**
  * /api/ideas — Moment Ideas endpoint providing 3 ideas across tiers.
- *
- * SPEC REQUIREMENT (§6):
- * - /api/ideas: momentId + context -> 3 ideas (simple/standard/special)
- *   with optional price BANDS labelled estimates.
+ * Pure Node.js HTTP handler for Vercel Fluid Functions (Node 26.x).
  */
 
-import type { VercelRequest, VercelResponse } from './_shared';
-import { handleApiPreflight } from './_shared';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { handleApiPreflight, sendJson } from './_shared';
 import { IdeasRequestSchema } from '../src/schemas/ai';
 import { runIdeas } from '../src/ai/client';
 
-export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const body = await handleApiPreflight(req, res, 'POST');
   if (body === null) return;
 
   try {
     const validated = IdeasRequestSchema.strict().parse(body);
     const result = await runIdeas(validated);
-    res.status(200).json(result);
+    sendJson(res, 200, result);
   } catch (err) {
-    res.status(400).json({
+    sendJson(res, 400, {
       error: 'Invalid request parameters',
       details: (err as Error).message,
     });

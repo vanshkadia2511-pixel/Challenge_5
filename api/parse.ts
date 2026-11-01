@@ -1,25 +1,23 @@
 /**
  * /api/parse — Free-text event brief parser endpoint.
- *
- * SPEC REQUIREMENT (§6):
- * - /api/parse: free-text brief -> candidate event fields for the user to edit.
+ * Pure Node.js HTTP handler for Vercel Fluid Functions (Node 26.x).
  */
 
-import type { VercelRequest, VercelResponse } from './_shared';
-import { handleApiPreflight } from './_shared';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { handleApiPreflight, sendJson } from './_shared';
 import { ParseRequestSchema } from '../src/schemas/ai';
 import { runParse } from '../src/ai/client';
 
-export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const body = await handleApiPreflight(req, res, 'POST');
   if (body === null) return;
 
   try {
     const validated = ParseRequestSchema.strict().parse(body);
     const result = await runParse(validated);
-    res.status(200).json(result);
+    sendJson(res, 200, result);
   } catch (err) {
-    res.status(400).json({
+    sendJson(res, 400, {
       error: 'Invalid request parameters',
       details: (err as Error).message,
     });

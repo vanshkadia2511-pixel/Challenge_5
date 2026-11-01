@@ -1,25 +1,14 @@
 /**
- * _shared.ts — Shared serverless utilities: rate limiting, CORS, security headers, and size limits.
+ * _shared.ts — Shared serverless utilities using pure Node.js HTTP APIs.
+ * Compatible with Vercel Fluid Functions (Node 26.x) without any polyfills.
  *
- * SPEC REQUIREMENT (§7):
- * Key in env only, sent in a header, never logged or sent to the browser.
- * Body size cap (64 KB), per-IP rate limit (20 AI requests/min), exact-origin CORS,
- * CSP + HSTS + nosniff + Referrer-Policy + frame restrictions, consistent
- * non-sensitive error responses, no raw provider errors shown.
+ * Uses raw IncomingMessage/ServerResponse with .statusCode and .end()
+ * instead of relying on Vercel-injected .status()/.json() helpers.
  */
 
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export interface VercelRequest extends IncomingMessage {
-  body?: unknown;
-  query?: Record<string, string | string[]>;
-}
-
-export type VercelResponse = ServerResponse & {
-  status: (statusCode: number) => VercelResponse;
-  json: (data: unknown) => void;
-  send: (data: string) => void;
-};
+export type { IncomingMessage, ServerResponse };
 
 // In-memory rate limiting map: ip -> array of request timestamps (ms)
 const rateLimitMap = new Map<string, number[]>();
@@ -33,7 +22,7 @@ function checkRateLimit(ip: string): boolean {
 
   if (recent.length >= MAX_REQUESTS_PER_WINDOW) {
     rateLimitMap.set(ip, recent);
-    return false; // Rate limit exceeded
+    return false;
   }
 
   recent.push(now);
@@ -41,35 +30,17 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-/** Ensure status, json, and send helpers exist on raw ServerResponse */
-export function ensureResponseHelpers(res: ServerResponse): VercelResponse {
-  const extended = res as VercelResponse;
-  if (typeof extended.status !== 'function') {
-    extended.status = function (statusCode: number) {
-      extended.statusCode = statusCode;
-      return extended;
-    };
-  }
-  if (typeof extended.json !== 'function') {
-    extended.json = function (data: unknown) {
-      if (!extended.getHeader('Content-Type')) {
-        extended.setHeader('Content-Type', 'application/json; charset=utf-8');
-      }
-      extended.end(JSON.stringify(data));
-    };
-  }
-  if (typeof extended.send !== 'function') {
-    extended.send = function (data: string) {
-      extended.end(data);
-    };
-  }
-  return extended;
+/** Send a JSON response using raw Node.js APIs */
+export function sendJson(res: ServerResponse, statusCode: number, data: unknown): void {
+  const body = JSON.stringify(data);
+  res.statusCode = statusCode;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(body);
 }
 
-/** Set required security headers on serverless response */
-export function applySecurityHeaders(res: VercelResponse, origin = '*'): void {
-  ensureResponseHelpers(res);
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || origin;
+/** Set security headers on the response */
+export function applySecurityHeaders(res: ServerResponse, origin = '*'): void {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN ?? origin;
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -79,21 +50,26 @@ export function applySecurityHeaders(res: VercelResponse, origin = '*'): void {
   res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
 }
 
-/** Read raw body with 64 KB size cap */
-export async function readJsonBody(req: VercelRequest): Promise<unknown> {
-  if (req.body && typeof req.body === 'object') {
-    return req.body;
+/** Extract client IP address */
+export function getClientIp(req: IncomingMessage): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0]?.trim() ?? '127.0.0.1';
   }
+  return req.socket.remoteAddress ?? '127.0.0.1';
+}
 
+/** Read raw body with 64 KB size cap */
+export async function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
     let raw = '';
-    const MAX_SIZE = 64 * 1024; // 64 KB cap
+    const MAX_SIZE = 64 * 1024;
     let size = 0;
 
     req.on('data', (chunk: Buffer) => {
       size += chunk.length;
       if (size > MAX_SIZE) {
-        reject(new Error('Payload too large: exceeds 64 KB cap'));
+        reject(new Error('Payload too large'));
         return;
       }
       raw += chunk.toString('utf8');
@@ -107,64 +83,53 @@ export async function readJsonBody(req: VercelRequest): Promise<unknown> {
       try {
         resolve(JSON.parse(raw));
       } catch {
-        reject(new Error('Invalid JSON format'));
+        reject(new Error('Invalid JSON'));
       }
     });
 
-    req.on('error', (err) => {
-      reject(err);
-    });
+    req.on('error', (err) => reject(err));
   });
 }
 
-/** Extract client IP address from standard headers */
-export function getClientIp(req: VercelRequest): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return forwarded.split(',')[0]?.trim() ?? '127.0.0.1';
-  }
-  return req.socket.remoteAddress ?? '127.0.0.1';
-}
-
-/** Run standard preflight checks: method, body size, rate limit, CORS */
+/**
+ * Run standard preflight checks: CORS, method, rate limit, body parse.
+ * Returns parsed body on success, or null if the response was already sent.
+ */
 export async function handleApiPreflight(
-  req: VercelRequest,
-  res: VercelResponse,
+  req: IncomingMessage,
+  res: ServerResponse,
   requiredMethod = 'POST',
 ): Promise<unknown> {
-  const originHeader = typeof req.headers.origin === 'string' ? req.headers.origin : '*';
-  applySecurityHeaders(res, originHeader);
+  const origin =
+    typeof req.headers['origin'] === 'string' ? req.headers['origin'] : '*';
+  applySecurityHeaders(res, origin);
 
-  // Handle preflight OPTIONS
   if (req.method === 'OPTIONS') {
-    res.status(200).send('OK');
+    res.statusCode = 200;
+    res.end('OK');
     return null;
   }
 
   if (req.method !== requiredMethod) {
-    res.status(405).json({ error: `Method ${req.method ?? 'UNKNOWN'} not allowed` });
+    sendJson(res, 405, { error: `Method ${req.method ?? 'UNKNOWN'} not allowed` });
     return null;
   }
 
-  // Rate limiting check
   const ip = getClientIp(req);
   if (!checkRateLimit(ip)) {
-    res.status(429).json({
-      error: 'Too many requests. Please wait a minute before trying again.',
-    });
+    sendJson(res, 429, { error: 'Too many requests. Please wait a minute.' });
     return null;
   }
 
-  // Read and validate body size
   try {
     const body = await readJsonBody(req);
     return body;
   } catch (err) {
     const message = (err as Error).message;
     if (message.includes('too large')) {
-      res.status(413).json({ error: 'Payload exceeds 64 KB size limit' });
+      sendJson(res, 413, { error: 'Payload exceeds 64 KB size limit' });
     } else {
-      res.status(400).json({ error: 'Invalid JSON request payload' });
+      sendJson(res, 400, { error: 'Invalid JSON request payload' });
     }
     return null;
   }
