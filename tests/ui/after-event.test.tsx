@@ -33,7 +33,7 @@ describe('AfterEventPage (Post-Celebration Log)', () => {
     fireEvent.click(skipButtons[0]);
 
     // Save log
-    const saveBtn = screen.getByRole('button', { name: /Save Log/i });
+    const saveBtn = screen.getAllByRole('button', { name: /Save Log/i })[0];
     fireEvent.click(saveBtn);
 
     // Expect status message to appear

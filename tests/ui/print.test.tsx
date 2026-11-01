@@ -22,7 +22,7 @@ describe('MomentBookPage (Print View & Exports)', () => {
 
     // Header & title
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Print Moment Book/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Print Moment Book/i })[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Export JSON/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Import JSON/i })).toBeInTheDocument();
 
@@ -45,7 +45,7 @@ describe('MomentBookPage (Print View & Exports)', () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
     renderWithProviders(<MomentBookPage />);
 
-    const printBtn = screen.getByRole('button', { name: /Print Moment Book/i });
+    const printBtn = screen.getAllByRole('button', { name: /Print Moment Book/i })[0];
     fireEvent.click(printBtn);
 
     expect(printSpy).toHaveBeenCalledTimes(1);

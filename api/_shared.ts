@@ -87,7 +87,9 @@ export async function readJsonBody(req: IncomingMessage): Promise<unknown> {
       }
     });
 
-    req.on('error', (err) => reject(err));
+    req.on('error', (err) => {
+      reject(err);
+    });
   });
 }
 
